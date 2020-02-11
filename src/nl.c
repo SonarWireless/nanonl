@@ -309,7 +309,7 @@ void nl_add_attr(struct nlmsghdr *m, __u16 type, const void *data,
 	if (data && len) {
 		if (len < 4) memset(NLA_DATA(attr), 0, NLA_ALIGN(len));
 		memcpy(NLA_DATA(attr), data, len);
-		attr->nla_len = (__u16)NLA_ALIGN(NLA_HDRLEN + len);
+		attr->nla_len = (__u16)(NLA_HDRLEN + len);
 	}
 
 	m->nlmsg_len = NLMSG_ALIGN(m->nlmsg_len + attr->nla_len);
