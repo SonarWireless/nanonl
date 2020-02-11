@@ -44,17 +44,34 @@ static void nl_set_sa(struct sockaddr_nl *sa, __u32 port)
  */
 int nl_open(int protocol, __u32 port)
 {
-	int fd;
+	int fd = -1;
 	struct sockaddr_nl sa;
+	socklen_t addrlen = sizeof(sa);
+
 	nl_set_sa(&sa, port);
 
 	if ((fd = socket(AF_NETLINK, SOCK_RAW, protocol)) < 0 ||
 	    bind(fd, (struct sockaddr *)&sa, sizeof(sa))) {
-		if (fd >= 0) close(fd);
-		return -1;
+			goto fail;
+	}
+
+	if (getsockname(fd, (struct sockaddr *) &sa, &addrlen) < 0) {
+		goto fail;
+	}
+
+	if (addrlen != sizeof(sa)) {
+		goto fail;
+	}
+
+	if (sa.nl_family != AF_NETLINK) {
+		goto fail;
 	}
 
 	return fd;
+fail:
+	if (fd >= 0)
+		close(fd);
+	return -1;
 }
 
 /**
