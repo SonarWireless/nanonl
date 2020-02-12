@@ -244,6 +244,14 @@ int nl_80211_set_regdomain(struct nl_80211_ctx *ctx, const char *domain)
 	return nl_80211_exec(ctx);
 }
 
+int nl_80211_regdomain_reload(struct nl_80211_ctx *ctx)
+{
+	nl_80211_command(ctx, NL80211_CMD_RELOAD_REGDB);
+
+	dd("ctx: %p: regdb reload", ctx);
+	return nl_80211_exec(ctx);
+}
+
 int nl_80211_set_mode(struct nl_80211_ctx *ctx, const char *iface, enum nl80211_iftype mode)
 {
 	nl_80211_command(ctx, NL80211_CMD_SET_INTERFACE);

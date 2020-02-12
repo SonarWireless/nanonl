@@ -114,6 +114,13 @@ static inline int nl_80211_get_channel(struct nl_80211_ctx *ctx, const char *ifa
 int nl_80211_set_regdomain(struct nl_80211_ctx *ctx, const char *domain);
 
 /**
+ * \brief Reload regdb from disk
+ * \param[in] ctx       nl80211 context.
+ * \return 0 on success, non-zero on error.
+ */
+int nl_80211_regdomain_reload(struct nl_80211_ctx *ctx);
+
+/**
  * \brief Set interface mode
  * \param[in] ctx       nl80211 context.
  * \param[in] iface     network interface.
