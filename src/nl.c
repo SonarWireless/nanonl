@@ -171,11 +171,11 @@ ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t len, __u32 *port)
 	struct iovec iov;
 	struct msghdr hdr;
 	struct sockaddr_nl sa;
-	int e = MSG_PEEK;
+	int e = 0;
 
 	if (!msg || !len || len < sizeof(struct nlmsghdr)) {
 		errno = EINVAL;
-		goto err;
+		return -1;
 	}
 
 	/**
@@ -190,7 +190,7 @@ ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t len, __u32 *port)
 	 */
 	if (len > (SIZE_MAX >> 1)) {
 		errno = E2BIG;
-		goto err;
+		return -2;
 	}
 
 	iov.iov_base = msg;
@@ -206,38 +206,43 @@ ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t len, __u32 *port)
 	if (fcntl(fd, F_GETFL) & O_NONBLOCK)
 		e |= MSG_DONTWAIT;
 
-read:
-	/* Read the netlink header to get the message length */
-	if ((i = recvmsg(fd, &hdr, e)) < 0)
-		goto err;
-	if (!i && e & MSG_PEEK)
-		goto ret;
-	else if (e & MSG_PEEK) {
-		e &= ~MSG_PEEK;
-		if (port)
-			*port = sa.nl_pid;
-		goto read;
-	}
-
-	/* Is the buffer too small? */
-	if ((size_t)msg->nlmsg_len > len || !NLMSG_OK(msg, (size_t)i)) {
-		errno = EMSGSIZE;
-		goto err;
-	}
-
-	/* Is this an error message? (error 0 is an ACK) */
-	if (msg->nlmsg_type == NLMSG_ERROR) {
-		if ((e = ((struct nlmsgerr *)NLMSG_DATA(msg))->error)) {
-			errno = e;
-			goto err;
+	for (;;) {
+		i = recvmsg(fd, &hdr, e);
+		if (i < 0) {
+			if (errno == EINTR) {
+				// Try to re-read
+				continue;
+			} else if (errno == EAGAIN) {
+				// Nothing to do
+				return 0;
+			} else {
+				// Something went wrong
+				return -3;
+			}
+		} else if (i == 0) {
+			// EOF
+			return 0;
 		}
+
+		/* Is the buffer too small? */
+		if ((size_t)msg->nlmsg_len > len || !NLMSG_OK(msg, (size_t)i)) {
+			errno = EMSGSIZE;
+			return -4;
+		}
+
+		/* Is this an error message? (error 0 is an ACK) */
+		if (msg->nlmsg_type == NLMSG_ERROR) {
+			if ((e = ((struct nlmsgerr *)NLMSG_DATA(msg))->error)) {
+				errno = e;
+				return -5;
+			}
+		}
+
+		return i;
 	}
 
-ret:
-	return i;
-
-err:
-	return -1;
+	// Should not happen
+	return -6;
 }
 
 /**
