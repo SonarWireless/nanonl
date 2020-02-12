@@ -14,8 +14,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#include "../src/nl.h"
-#include "../src/nl_nfqueue.h"
+#include <nanonl/nl.h>
+#include <nanonl/nl_nfqueue.h>
 
 static int fd = -1;
 static __u16 qn = 0;

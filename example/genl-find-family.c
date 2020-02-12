@@ -12,8 +12,8 @@
 #include <unistd.h>
 #include <errno.h>
 
-#include "../src/nl.h"
-#include "../src/nl_gen.h"
+#include <nanonl/nl.h>
+#include <nanonl/nl_gen.h>
 
 static int fd = -1;
 const char *family = "nlctrl";

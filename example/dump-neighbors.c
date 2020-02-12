@@ -16,8 +16,8 @@
 #include <netinet/in.h>
 #include <linux/rtnetlink.h>
 
-#include "../src/nl.h"
-#include "../src/nl_nd.h"
+#include <nanonl/nl.h>
+#include <nanonl/nl_nd.h>
 
 static int fd = -1;
 static char buf[BUFSIZ];
