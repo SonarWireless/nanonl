@@ -8,6 +8,10 @@
 
 #include "nl.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct nl_80211_ctx;
 
 /**
@@ -163,3 +167,7 @@ int nl_80211_set_rates(struct nl_80211_ctx *ctx, const char *iface, const __u8 *
  */
 int nl_80211_get_supported_channels(struct nl_80211_ctx *ctx, const char *iface, __u8 *channels, __u8 *channels_len,
 				    __u8 only_for_2gz);
+
+#ifdef __cplusplus
+}
+#endif

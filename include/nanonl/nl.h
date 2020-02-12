@@ -14,6 +14,10 @@
 #include <sys/socket.h>
 #include <linux/netlink.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define NL_MULTICAST_JOIN  1 /**< Join a multicast group */
 #define NL_MULTICAST_LEAVE 0 /**< Leave a multicast group */
 
@@ -274,6 +278,10 @@ __u16 nl_get_attrv(struct nlmsghdr *m, size_t extra_len,
  * \endcode
  */
 __u16 nla_get_attrv(struct nlattr *nla, struct nlattr *attrs[], __u16 n);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* NL_H */
 

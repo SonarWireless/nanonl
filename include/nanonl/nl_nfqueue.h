@@ -25,6 +25,10 @@
 
 #include "nl_nf.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * \brief Create a netlink_nfqueue request.
  * \param[in] m    Netlink message buffer.
@@ -133,6 +137,10 @@ void nl_nfqueue_verdict_mark(struct nlmsghdr *m, __u32 mark);
  */
 void nl_nfqueue_verdict_ctmark(struct nlmsghdr *m, __u32 mark);
 #endif /* Linux < 3.6 */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* NL_NFQUEUE_H */
 

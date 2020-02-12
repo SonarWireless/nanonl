@@ -2,6 +2,10 @@
 
 #include <nanonl/nl.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static inline void *nla_data(const struct nlattr *nla)
 {
 	return (__u8 *)nla + NLA_HDRLEN;
@@ -41,3 +45,7 @@ static inline void nla_put_u32(struct nlmsghdr *m, __u16 type, __u32 val)
 {
 	nl_add_attr(m, type, &val, sizeof(val));
 }
+
+#ifdef __cplusplus
+}
+#endif

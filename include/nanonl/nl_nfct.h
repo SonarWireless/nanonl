@@ -23,6 +23,10 @@
 
 #include "nl_nf.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * \brief Create a netlink_conntrack request.
  * \param[in] m    Netlink message buffer.
@@ -102,6 +106,10 @@ void nl_nfct_create(struct nlmsghdr *m, __u8 l3proto);
  * for the kernel to lookup the conntrack entry to modify.
  */
 void nl_nfct_update(struct nlmsghdr *m, __u8 l3proto);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* NL_NFCT_H */
 

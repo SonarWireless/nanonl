@@ -17,6 +17,10 @@
 
 #include "nl.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * \def nl_nd_get_attr(m, t)
  * \param m Netlink message buffer
@@ -86,6 +90,10 @@
  */
 void nl_nd_request(struct nlmsghdr *m, __u32 pid, __u8 family, __u8 type,
                    __s32 ifindex, __u8 state, __u8 flags);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* NL_ND_H */
 

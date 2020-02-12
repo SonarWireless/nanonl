@@ -19,6 +19,10 @@
 
 #include "nl.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * \def nl_ifi_index(m)
  * \param m Pointer to a struct ifinfomsg
@@ -121,6 +125,10 @@ void nl_ifi_del_by_name(struct nlmsghdr *m, const char *name);
 void nl_ifi_request(struct nlmsghdr *m, __u32 pid, __u8 type,
                     __u8 family, unsigned short devtype, int ifindex,
                     unsigned int flags);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* NL_IFINFO_H */
 

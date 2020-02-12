@@ -17,6 +17,10 @@
 
 #include "nl.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * \def nl_ifa_index(m)
  * \param m Pointer to a struct ifaddrmsg
@@ -117,6 +121,10 @@
  */
 void nl_ifa_request(struct nlmsghdr *m, __u32 pid, __u8 type, __u8 family,
                     __u8 prefix_len, __u8 flags, __u8 scope, int ifindex);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* NL_IFADDR_H */
 

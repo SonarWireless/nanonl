@@ -16,6 +16,10 @@
 
 #include "nl.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * \def nl_gen_get_attr(m, t)
  * \param m Netlink message buffer
@@ -68,5 +72,9 @@ void nl_gen_request(struct nlmsghdr *m, __u32 pid, __u16 family,
  * \endcode
  */
 int nl_gen_find_family(struct nlmsghdr *m, const char *family);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* NL_GEN_H */
