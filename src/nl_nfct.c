@@ -11,8 +11,8 @@
 #include <errno.h>
 #include <arpa/inet.h>
 
-#include "nl.h"
-#include "nl_nfct.h"
+#include <nanonl/nl.h>
+#include <nanonl/nl_nfct.h>
 
 /**
  * \brief Request a dump of all conntrack entries
@@ -25,8 +25,10 @@
  */
 void nl_nfct_dump(struct nlmsghdr *m, __u8 l3proto, int ctrzero)
 {
-	if (ctrzero) nl_nfct_get_ctrzero(m, l3proto);
-	else         nl_nfct_get(m, l3proto);
+	if (ctrzero)
+		nl_nfct_get_ctrzero(m, l3proto);
+	else
+		nl_nfct_get(m, l3proto);
 	m->nlmsg_flags |= NLM_F_DUMP;
 }
 
@@ -57,4 +59,3 @@ void nl_nfct_update(struct nlmsghdr *m, __u8 l3proto)
 	nl_nfct_create(m, l3proto);
 	m->nlmsg_flags = (__u16)(m->nlmsg_flags & ~NLM_F_CREATE);
 }
-

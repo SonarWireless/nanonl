@@ -15,7 +15,7 @@
 #include <fcntl.h>
 #include <sys/socket.h>
 
-#include "nl.h"
+#include <nanonl/nl.h>
 
 /**
  * Ensure we have a good value for SOL_NETLINK (linux/sockets.h)
@@ -31,8 +31,8 @@
 static void nl_set_sa(struct sockaddr_nl *sa, __u32 port)
 {
 	sa->nl_family = AF_NETLINK;
-	sa->nl_pad    = 0;
-	sa->nl_pid    = port;
+	sa->nl_pad = 0;
+	sa->nl_pid = port;
 	sa->nl_groups = 0;
 }
 
@@ -50,12 +50,11 @@ int nl_open(int protocol, __u32 port)
 
 	nl_set_sa(&sa, port);
 
-	if ((fd = socket(AF_NETLINK, SOCK_RAW, protocol)) < 0 ||
-	    bind(fd, (struct sockaddr *)&sa, sizeof(sa))) {
-			goto fail;
+	if ((fd = socket(AF_NETLINK, SOCK_RAW, protocol)) < 0 || bind(fd, (struct sockaddr *)&sa, sizeof(sa))) {
+		goto fail;
 	}
 
-	if (getsockname(fd, (struct sockaddr *) &sa, &addrlen) < 0) {
+	if (getsockname(fd, (struct sockaddr *)&sa, &addrlen) < 0) {
 		goto fail;
 	}
 
@@ -87,11 +86,13 @@ int nl_multicast(int fd, int join, int group, ...)
 	join = (join ? NETLINK_ADD_MEMBERSHIP : NETLINK_DROP_MEMBERSHIP);
 
 	errno = EINVAL;
-	if (fd < 0) goto err;
+	if (fd < 0)
+		goto err;
 
 	va_start(ap, group);
 	while (group) {
-		if (group < 0) goto va_err;
+		if (group < 0)
+			goto va_err;
 		if (setsockopt(fd, SOL_NETLINK, join, &group, sizeof(int)))
 			goto va_err;
 		group = va_arg(ap, int);
@@ -130,15 +131,15 @@ ssize_t nl_send(int fd, __u32 port, struct nlmsghdr *msg)
 		goto ret;
 	}
 
-	iov.iov_base       = msg;
-	iov.iov_len        = msg->nlmsg_len;
-	hdr.msg_name       = &sa;
-	hdr.msg_namelen    = (socklen_t)sizeof(struct sockaddr_nl);
-	hdr.msg_iov        = &iov;
-	hdr.msg_iovlen     = 1;
-	hdr.msg_control    = NULL;
+	iov.iov_base = msg;
+	iov.iov_len = msg->nlmsg_len;
+	hdr.msg_name = &sa;
+	hdr.msg_namelen = (socklen_t)sizeof(struct sockaddr_nl);
+	hdr.msg_iov = &iov;
+	hdr.msg_iovlen = 1;
+	hdr.msg_control = NULL;
 	hdr.msg_controllen = 0;
-	hdr.msg_flags      = 0;
+	hdr.msg_flags = 0;
 	i = sendmsg(fd, &hdr, 0);
 
 ret:
@@ -192,15 +193,15 @@ ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t len, __u32 *port)
 		goto err;
 	}
 
-	iov.iov_base       = msg;
-	iov.iov_len        = len;
-	hdr.msg_name       = &sa;
-	hdr.msg_namelen    = (socklen_t)sizeof(struct sockaddr_nl);
-	hdr.msg_iov        = &iov;
-	hdr.msg_iovlen     = 1;
-	hdr.msg_control    = NULL;
+	iov.iov_base = msg;
+	iov.iov_len = len;
+	hdr.msg_name = &sa;
+	hdr.msg_namelen = (socklen_t)sizeof(struct sockaddr_nl);
+	hdr.msg_iov = &iov;
+	hdr.msg_iovlen = 1;
+	hdr.msg_control = NULL;
 	hdr.msg_controllen = 0;
-	hdr.msg_flags      = 0;
+	hdr.msg_flags = 0;
 
 	if (fcntl(fd, F_GETFL) & O_NONBLOCK)
 		e |= MSG_DONTWAIT;
@@ -209,10 +210,12 @@ read:
 	/* Read the netlink header to get the message length */
 	if ((i = recvmsg(fd, &hdr, e)) < 0)
 		goto err;
-	if (!i && e & MSG_PEEK) goto ret;
+	if (!i && e & MSG_PEEK)
+		goto ret;
 	else if (e & MSG_PEEK) {
 		e &= ~MSG_PEEK;
-		if (port) *port = sa.nl_pid;
+		if (port)
+			*port = sa.nl_pid;
 		goto read;
 	}
 
@@ -257,15 +260,16 @@ ssize_t nl_transact(int fd, struct nlmsghdr *m, size_t len, __u32 *port)
 		goto err;
 
 	/* Ensure the socket is blocking */
-	if ((flags = fcntl(fd, F_GETFL, 0)) == -1 ||
-	    fcntl(fd, F_SETFL, flags & ~O_NONBLOCK)) goto err;
+	if ((flags = fcntl(fd, F_GETFL, 0)) == -1 || fcntl(fd, F_SETFL, flags & ~O_NONBLOCK))
+		goto err;
 
 	/* Tx / Rx */
-	if ((size_t)nl_send(fd, port ? *port : 0, m) != m->nlmsg_len ||
-	    (ret = nl_recv(fd, m, len, port)) <= 0) goto err;
+	if ((size_t)nl_send(fd, port ? *port : 0, m) != m->nlmsg_len || (ret = nl_recv(fd, m, len, port)) <= 0)
+		goto err;
 
 err:
-	if (flags != -1) fcntl(fd, F_SETFL, flags);
+	if (flags != -1)
+		fcntl(fd, F_SETFL, flags);
 	return ret;
 }
 
@@ -277,15 +281,15 @@ err:
  * \param[in] port  Destination netlink port.
  * \param[in] len   Initial payload length.
  */
-void nl_msg(struct nlmsghdr *m, __u16 type, __u16 flags, __u32 port,
-            size_t len)
+void nl_msg(struct nlmsghdr *m, __u16 type, __u16 flags, __u32 port, size_t len)
 {
-	if (!m) return;
-	m->nlmsg_len   = NLMSG_LENGTH(NLMSG_ALIGN((__u32)len));
-	m->nlmsg_type  = type;
+	if (!m)
+		return;
+	m->nlmsg_len = NLMSG_LENGTH(NLMSG_ALIGN((__u32)len));
+	m->nlmsg_type = type;
 	m->nlmsg_flags = flags;
-	m->nlmsg_seq   = 0;
-	m->nlmsg_pid   = port;
+	m->nlmsg_seq = 0;
+	m->nlmsg_pid = port;
 }
 
 /**
@@ -295,19 +299,20 @@ void nl_msg(struct nlmsghdr *m, __u16 type, __u16 flags, __u32 port,
  * \param[in] data Attribute data.
  * \param[in] len  Length of attribute data.
  */
-void nl_add_attr(struct nlmsghdr *m, __u16 type, const void *data,
-                 size_t len)
+void nl_add_attr(struct nlmsghdr *m, __u16 type, const void *data, size_t len)
 {
 	struct nlattr *attr;
-	if (!m) return;
+	if (!m)
+		return;
 
 	attr = BYTE_OFF(m, NLMSG_ALIGN(m->nlmsg_len));
 	attr->nla_type = type;
-	attr->nla_len  = NLA_HDRLEN;
+	attr->nla_len = NLA_HDRLEN;
 	len &= 0xffff;
 
 	if (data && len) {
-		if (len < 4) memset(NLA_DATA(attr), 0, NLA_ALIGN(len));
+		if (len < 4)
+			memset(NLA_DATA(attr), 0, NLA_ALIGN(len));
 		memcpy(NLA_DATA(attr), data, len);
 		attr->nla_len = (__u16)(NLA_HDRLEN + len);
 	}
@@ -324,11 +329,12 @@ void nl_add_attr(struct nlmsghdr *m, __u16 type, const void *data,
 struct nlattr *nla_start(struct nlmsghdr *m, __u16 type)
 {
 	struct nlattr *attr;
-	if (!m) return NULL;
+	if (!m)
+		return NULL;
 
 	attr = BYTE_OFF(m, NLMSG_ALIGN(m->nlmsg_len));
 	attr->nla_type = type | NLA_F_NESTED;
-	attr->nla_len  = NLA_HDRLEN;
+	attr->nla_len = NLA_HDRLEN;
 	return attr;
 }
 
@@ -339,19 +345,20 @@ struct nlattr *nla_start(struct nlmsghdr *m, __u16 type)
  * \param[in] data Attribute data.
  * \param[in] len  Length of attribute data.
  */
-void nla_add_attr(struct nlattr *nla, __u16 type, const void *data,
-                  size_t len)
+void nla_add_attr(struct nlattr *nla, __u16 type, const void *data, size_t len)
 {
 	struct nlattr *attr;
 
-	if (!nla) return;
+	if (!nla)
+		return;
 	attr = (struct nlattr *)BYTE_OFF(nla, nla->nla_len);
 	attr->nla_type = type;
-	attr->nla_len  = NLA_HDRLEN;
+	attr->nla_len = NLA_HDRLEN;
 	len &= 0xffff;
 
 	if (data && len) {
-		if (len < 4) memset(NLA_DATA(attr), 0, NLA_ALIGN(len));
+		if (len < 4)
+			memset(NLA_DATA(attr), 0, NLA_ALIGN(len));
 		memcpy(NLA_DATA(attr), data, len);
 		attr->nla_len = (__u16)NLA_ALIGN(NLA_HDRLEN + len);
 	}
@@ -366,7 +373,8 @@ void nla_add_attr(struct nlattr *nla, __u16 type, const void *data,
  */
 void nla_end(struct nlmsghdr *m, const struct nlattr *nla)
 {
-	if (!m || !nla) return;
+	if (!m || !nla)
+		return;
 	m->nlmsg_len += NLMSG_ALIGN(nla->nla_len);
 }
 
@@ -394,7 +402,8 @@ struct nlattr *nl_get_attr(struct nlmsghdr *m, size_t extra_len, __u16 type)
 	size_t len;
 	struct nlattr *nla;
 
-	if (!m || !NLMSG_OK(m, m->nlmsg_len)) goto ret;
+	if (!m || !NLMSG_OK(m, m->nlmsg_len))
+		goto ret;
 	attr = BYTE_OFF(NLMSG_DATA(m), NLMSG_ALIGN((__u32)extra_len));
 	while ((size_t)((char *)attr - (char *)m) < m->nlmsg_len) {
 		nla = attr;
@@ -472,22 +481,23 @@ ret:
  * 	       buf, sizeof(buf)));
  * \endcode
  */
-__u16 nl_get_attrv(struct nlmsghdr *m, size_t extra_len,
-                   struct nlattr *attrs[], __u16 n)
+__u16 nl_get_attrv(struct nlmsghdr *m, size_t extra_len, struct nlattr *attrs[], __u16 n)
 {
 	void *attr;
 	struct nlattr *nla;
 	size_t len;
 	__u16 type, found = 0;
 
-	if (!attrs || !n || !m || !NLMSG_OK(m, m->nlmsg_len)) goto ret;
+	if (!attrs || !n || !m || !NLMSG_OK(m, m->nlmsg_len))
+		goto ret;
 	attr = BYTE_OFF(NLMSG_DATA(m), NLMSG_ALIGN((__u32)extra_len));
 	while ((size_t)((char *)attr - (char *)m) < m->nlmsg_len) {
 		nla = attr;
 		type = (__u16)(nla->nla_type & NLA_TYPE_MASK);
 		if (type > 0 && type <= n) {
 			attrs[type] = nla;
-			if (++found == n) break;
+			if (++found == n)
+				break;
 		}
 
 		len = NLA_ALIGN(nla->nla_len ? nla->nla_len : NLA_HDRLEN);
@@ -535,7 +545,8 @@ __u16 nla_get_attrv(struct nlattr *nla, struct nlattr *attrs[], __u16 n)
 		type = (__u16)(a->nla_type & NLA_TYPE_MASK);
 		if (type > 0 && type <= n) {
 			attrs[type] = a;
-			if (++found == n) break;
+			if (++found == n)
+				break;
 		}
 
 		len = NLA_ALIGN(a->nla_len ? a->nla_len : NLA_HDRLEN);
@@ -545,4 +556,3 @@ __u16 nla_get_attrv(struct nlattr *nla, struct nlattr *attrs[], __u16 n)
 ret:
 	return found;
 }
-

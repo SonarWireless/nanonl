@@ -31,3 +31,4 @@ example/dump-neighbors
 example/monitor-neighbors
 example/dump-ct
 example/monitor-ct-del
+.vscode

@@ -10,8 +10,8 @@
 #include <string.h>
 #include <errno.h>
 
-#include "nl.h"
-#include "nl_gen.h"
+#include <nanonl/nl.h>
+#include <nanonl/nl_gen.h>
 
 /**
  * \brief Create a netlink_generic request.
@@ -23,13 +23,13 @@
  * \param[in] seq     Sequence number (0-based.)
  * \relates nl_request
  */
-void nl_gen_request(struct nlmsghdr *m, __u32 pid, __u16 family,
-                    __u8 cmd, __u8 version)
+void nl_gen_request(struct nlmsghdr *m, __u32 pid, __u16 family, __u8 cmd, __u8 version)
 {
 	struct genlmsghdr *ge = NLMSG_DATA(m);
-	if (!m) return;
+	if (!m)
+		return;
 	nl_request(m, family, pid, GENL_HDRLEN);
-	ge->cmd     = cmd;
+	ge->cmd = cmd;
 	ge->version = version;
 }
 
@@ -68,4 +68,3 @@ int nl_gen_find_family(struct nlmsghdr *m, const char *family)
 ret:
 	return ret;
 }
-

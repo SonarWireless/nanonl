@@ -10,8 +10,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 
-#include "nl.h"
-#include "nl_ifaddr.h"
+#include <nanonl/nl.h>
+#include <nanonl/nl_ifaddr.h>
 
 /**
  * \brief Create a netlink interface address request.
@@ -25,17 +25,18 @@
  * \parma[in] ifindex    Interface index.
  * \relates nl_request
  */
-void nl_ifa_request(struct nlmsghdr *m, __u32 pid, __u8 type, __u8 family,
-                    __u8 prefix_len, __u8 flags, __u8 scope, int ifindex)
+void nl_ifa_request(struct nlmsghdr *m, __u32 pid, __u8 type, __u8 family, __u8 prefix_len, __u8 flags, __u8 scope,
+		    int ifindex)
 {
 	struct ifaddrmsg *ifa = BYTE_OFF(m, sizeof(*m));
-	if (!m) return;
+	if (!m)
+		return;
 	nl_request(m, type, pid, sizeof(*ifa));
-	ifa->ifa_family    = family;
+	ifa->ifa_family = family;
 	ifa->ifa_prefixlen = prefix_len;
-	ifa->ifa_flags     = flags;
-	ifa->ifa_scope     = scope;
-	ifa->ifa_index     = (__u32)ifindex;
-	if (type == RTM_GETADDR) m->nlmsg_flags |= NLM_F_DUMP;
+	ifa->ifa_flags = flags;
+	ifa->ifa_scope = scope;
+	ifa->ifa_index = (__u32)ifindex;
+	if (type == RTM_GETADDR)
+		m->nlmsg_flags |= NLM_F_DUMP;
 }
-

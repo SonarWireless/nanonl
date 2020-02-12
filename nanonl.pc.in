@@ -1,0 +1,10 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@/nanonl
+
+Name: nanonl
+Description: Small netlink helper lib
+Version: 1.0
+Libs: -L${libdir} -lnanonl
+Cflags: -I${includedir}

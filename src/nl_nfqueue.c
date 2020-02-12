@@ -10,8 +10,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 
-#include "nl.h"
-#include "nl_nfqueue.h"
+#include <nanonl/nl.h>
+#include <nanonl/nl_nfqueue.h>
 
 /**
  * \brief Make a nfqueue config command message
@@ -44,21 +44,20 @@ void nl_nfqueue_cfg_cmd(struct nlmsghdr *m, __u8 cmd, __u16 pf, __u16 qn)
  * module to be lodaed or compiled in (CONFIG_NF_CT_NETLINK), and is only
  * available on Linux 3.6 or higher.
  */
-void nl_nfqueue_bind(struct nlmsghdr *m, __u16 pf, __u16 queue_num,
-                     __u8 cmode, __u32 crange, __u32 maxlen, int want_ct)
+void nl_nfqueue_bind(struct nlmsghdr *m, __u16 pf, __u16 queue_num, __u8 cmode, __u32 crange, __u32 maxlen, int want_ct)
 {
 	__u32 fl;
 	struct nfqnl_msg_config_params params;
-	params.copy_mode  = cmode;
+	params.copy_mode = cmode;
 	params.copy_range = htonl(crange);
 	nl_nfqueue_cfg_cmd(m, NFQNL_CFG_CMD_BIND, pf, queue_num);
 	nl_add_attr(m, NFQA_CFG_PARAMS, &params, sizeof(params));
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0)
 	if (want_ct) {
 		fl = htonl(NFQA_CFG_F_CONNTRACK);
 		nl_add_attr(m, NFQA_CFG_FLAGS, &fl, sizeof(fl));
-		nl_add_attr(m, NFQA_CFG_MASK,  &fl, sizeof(fl));
+		nl_add_attr(m, NFQA_CFG_MASK, &fl, sizeof(fl));
 	}
 #else
 	(void)want_ct;
@@ -81,12 +80,11 @@ void nl_nfqueue_bind(struct nlmsghdr *m, __u16 pf, __u16 queue_num,
  * verdict. The verdict is passed to nf_reinject() in
  * net/netfilter/nf_queue.c
  */
-void nl_nfqueue_verdict(struct nlmsghdr *m, __u16 queue_num,
-                        __u32 packet_id, __u32 verdict)
+void nl_nfqueue_verdict(struct nlmsghdr *m, __u16 queue_num, __u32 packet_id, __u32 verdict)
 {
 	struct nfqnl_msg_verdict_hdr v;
 	v.verdict = htonl(verdict);
-	v.id      = htonl(packet_id);
+	v.id = htonl(packet_id);
 	nl_nfqueue_request(m, 0, NFQNL_MSG_VERDICT, 0, queue_num);
 	nl_add_attr(m, NFQA_VERDICT_HDR, &v, sizeof(v));
 }
@@ -105,7 +103,7 @@ void nl_nfqueue_verdict_mark(struct nlmsghdr *m, __u32 mark)
 	nl_add_attr(m, NFQA_MARK, &mark, sizeof(__u32));
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0)
 /**
  * \brief Add a connmark to a verdict message
  * \param[in] m    Netlink message buffer.
@@ -125,4 +123,3 @@ void nl_nfqueue_verdict_ctmark(struct nlmsghdr *m, __u32 mark)
 	nla_end(m, nla);
 }
 #endif
-

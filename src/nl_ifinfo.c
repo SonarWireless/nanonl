@@ -11,8 +11,8 @@
 #include <limits.h>
 #include <arpa/inet.h>
 
-#include "nl.h"
-#include "nl_ifinfo.h"
+#include <nanonl/nl.h>
+#include <nanonl/nl_ifinfo.h>
 
 static void op_by_name(struct nlmsghdr *m, __u8 op, const char *name)
 {
@@ -27,7 +27,8 @@ static void op_by_name(struct nlmsghdr *m, __u8 op, const char *name)
  */
 void nl_ifi_get_by_name(struct nlmsghdr *m, const char *name)
 {
-	if (!m || !name) return;
+	if (!m || !name)
+		return;
 	op_by_name(m, RTM_GETLINK, name);
 }
 
@@ -38,7 +39,8 @@ void nl_ifi_get_by_name(struct nlmsghdr *m, const char *name)
  */
 void nl_ifi_del_by_name(struct nlmsghdr *m, const char *name)
 {
-	if (!m || !name) return;
+	if (!m || !name)
+		return;
 	op_by_name(m, RTM_DELLINK, name);
 }
 
@@ -53,17 +55,16 @@ void nl_ifi_del_by_name(struct nlmsghdr *m, const char *name)
  * \param[in] flags   Interface flags (IFF_*)
  * \relates nl_request
  */
-void nl_ifi_request(struct nlmsghdr *m, __u32 pid, __u8 type,
-                    __u8 family, unsigned short devtype, int ifindex,
-                    unsigned int flags)
+void nl_ifi_request(struct nlmsghdr *m, __u32 pid, __u8 type, __u8 family, unsigned short devtype, int ifindex,
+		    unsigned int flags)
 {
 	struct ifinfomsg *ifi = BYTE_OFF(m, sizeof(*m));
-	if (!m) return;
+	if (!m)
+		return;
 	nl_request(m, type, pid, sizeof(*ifi));
 	ifi->ifi_family = family;
-	ifi->ifi_type   = devtype;
-	ifi->ifi_index  = ifindex;
-	ifi->ifi_flags  = flags;
+	ifi->ifi_type = devtype;
+	ifi->ifi_index = ifindex;
+	ifi->ifi_flags = flags;
 	ifi->ifi_change = UINT_MAX;
 }
-
