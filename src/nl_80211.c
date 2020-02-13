@@ -11,6 +11,7 @@
 #include <sys/time.h>
 
 #include <linux/nl80211.h>
+#include <linux/version.h>
 
 #include <nanonl/nl_gen.h>
 #include <nanonl/nl_attr.h>
@@ -262,10 +263,15 @@ int nl_80211_set_regdomain(struct nl_80211_ctx *ctx, const char *domain)
 
 int nl_80211_regdomain_reload(struct nl_80211_ctx *ctx)
 {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 15, 0)
 	nl_80211_command(ctx, NL80211_CMD_RELOAD_REGDB);
 
 	dd("ctx: %p: regdb reload", ctx);
 	return nl_80211_exec(ctx);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
 }
 
 int nl_80211_set_mode(struct nl_80211_ctx *ctx, const char *iface, enum nl80211_iftype mode)
