@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <net/if.h>
+#include <sys/time.h>
 
 #include <linux/nl80211.h>
 
@@ -16,7 +17,8 @@
 #include <nanonl/nl_80211.h>
 
 #if NL80211_DEBUG
-#define dd(fmt, ...) fprintf(stdout, "nl: [%s:%d] " fmt "\n", __func__, __LINE__, ##__VA_ARGS__)
+#define dd(fmt, ...)                                                                                                   \
+	fprintf(stdout, "[%04llu] nl: [%s:%d] " fmt "\n", nl_debug_timestamp(), __func__, __LINE__, ##__VA_ARGS__)
 static void nl_hex_dump(const void *data, size_t size)
 {
 	char ascii[17];
@@ -45,6 +47,19 @@ static void nl_hex_dump(const void *data, size_t size)
 			}
 		}
 	}
+}
+
+#ifndef USEC_PER_SEC
+#define USEC_PER_SEC 1000000ull
+#endif /* USEC_PER_SEC */
+
+static __u64 nl_debug_timestamp()
+{
+	struct timeval tv;
+
+	gettimeofday(&tv, NULL);
+
+	return (USEC_PER_SEC * (__u64)tv.tv_sec + (__u64)tv.tv_usec) & 0xFFFFFFFFull;
 }
 #else
 #define dd(...)
@@ -108,6 +123,7 @@ static int nl_80211_exec(struct nl_80211_ctx *ctx)
 		}
 	}
 
+	dd("ctx: %p: command seq [%d]: OK", ctx, ctx->msg_tx->nlmsg_seq);
 	return 0;
 }
 
