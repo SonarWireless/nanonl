@@ -215,6 +215,7 @@ void nl_80211_close(struct nl_80211_ctx *ctx)
 int nl_80211_get_freq(struct nl_80211_ctx *ctx, const char *iface, __u16 *freq)
 {
 	struct nlattr *attrs[NL80211_ATTR_MAX + 1];
+	memset(attrs, 0, sizeof(attrs));
 
 	nl_80211_command(ctx, NL80211_CMD_GET_INTERFACE);
 
@@ -226,7 +227,8 @@ int nl_80211_get_freq(struct nl_80211_ctx *ctx, const char *iface, __u16 *freq)
 
 	__u16 count = nl_gen_get_attrv(ctx->msg_rx, attrs);
 	if ((count > 0) && (attrs[NL80211_ATTR_WIPHY_FREQ])) {
-		*freq = nla_get_u32(attrs[NL80211_ATTR_WIPHY_FREQ]);
+		__u32 ctlfreq = nla_get_u32(attrs[NL80211_ATTR_WIPHY_FREQ]);
+		*freq = (__u16)ctlfreq;
 		dd("ctx: %p: freq for [%s] is [%u]", ctx, iface, *freq);
 		return 0;
 	}
@@ -285,6 +287,29 @@ int nl_80211_set_mode(struct nl_80211_ctx *ctx, const char *iface, enum nl80211_
 
 	dd("ctx: %p: set interface [%s] mode to [%u]", ctx, iface, mode);
 	return nl_80211_exec(ctx);
+}
+
+int nl_80211_get_mode(struct nl_80211_ctx *ctx, const char *iface, enum nl80211_iftype *mode)
+{
+	struct nlattr *attrs[NL80211_ATTR_MAX + 1];
+	memset(attrs, 0, sizeof(attrs));
+
+	nl_80211_command(ctx, NL80211_CMD_GET_INTERFACE);
+
+	if (nl_80211_add_iface(ctx, iface))
+		return -1;
+
+	if (nl_80211_exec(ctx))
+		return -2;
+
+	__u16 count = nl_gen_get_attrv(ctx->msg_rx, attrs);
+	if ((count > 0) && (attrs[NL80211_ATTR_IFTYPE])) {
+		*mode = nla_get_u32(attrs[NL80211_ATTR_IFTYPE]);
+		dd("ctx: %p: mode for [%s] is [%u]", ctx, iface, *mode);
+		return 0;
+	}
+
+	return -3;
 }
 
 int nl_80211_set_power(struct nl_80211_ctx *ctx, const char *iface, enum nl80211_tx_power_setting mode, __u32 value)
