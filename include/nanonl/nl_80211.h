@@ -134,6 +134,15 @@ int nl_80211_regdomain_reload(struct nl_80211_ctx *ctx);
 int nl_80211_set_mode(struct nl_80211_ctx *ctx, const char *iface, enum nl80211_iftype mode);
 
 /**
+ * \brief Get interface mode
+ * \param[in] ctx       nl80211 context.
+ * \param[in] iface     network interface.
+ * \param[out] mode     interface mode.
+ * \return 0 on success, non-zero on error.
+ */
+int nl_80211_get_mode(struct nl_80211_ctx *ctx, const char *iface, enum nl80211_iftype *mode);
+
+/**
  * \brief Set interface power mode
  * \param[in] ctx       nl80211 context.
  * \param[in] iface     network interface.
