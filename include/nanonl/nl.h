@@ -107,7 +107,7 @@ int nl_multicast(int fd, int join, int group, ...);
  *
  * \a EINVAL - \a msg is NULL, and thus invalid.
  */
-ssize_t nl_send(int fd, __u32 port, struct nlmsghdr *msg);
+ssize_t nl_send_msg(int fd, __u32 port, struct nlmsghdr *msg);
 
 /**
  * \brief Receive a netlink message.
@@ -128,7 +128,7 @@ ssize_t nl_send(int fd, __u32 port, struct nlmsghdr *msg);
  *               message. If you want to abandon the message,
  *               simply \a close the socket.
  */
-ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t len, __u32 *port);
+ssize_t nl_recv_msg(int fd, struct nlmsghdr *msg, size_t len, __u32 *port);
 
 /**
  * \brief Send a message and read the response

@@ -46,7 +46,7 @@ int main(void)
 	}
 
 	nl_nfct_dump(m, 0, 1);
-	if ((__u32)nl_send(fd, 0, m) != m->nlmsg_len) {
+	if ((__u32)nl_send_msg(fd, 0, m) != m->nlmsg_len) {
 		fputs("Failed to dump conntrack entries\n", stderr);
 		goto ret;
 	}
@@ -54,7 +54,7 @@ int main(void)
 	errno = 0;
 	len = sizeof(buf);
 	memset(m, 0, sizeof(*m));
-	if (nl_recv(fd, m, len, &pid) <= 0) {
+	if (nl_recv_msg(fd, m, len, &pid) <= 0) {
 		if (errno < 0) {
 			fprintf(stderr, "Got netlink error #%d\n",
 				errno);

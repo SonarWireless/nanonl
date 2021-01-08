@@ -42,13 +42,13 @@ int main(void)
 
 dump_addrs:
 	nl_ifa_get_addr(m, family);
-	if ((__u32)nl_send(fd, 0, m) != m->nlmsg_len) {
+	if ((__u32)nl_send_msg(fd, 0, m) != m->nlmsg_len) {
 		fputs("Failed to send address request\n", stderr);
 		goto ret;
 	}
 
 read:
-	if ((br = nl_recv(fd, m, BUFSIZ, NULL)) <= 0) {
+	if ((br = nl_recv_msg(fd, m, BUFSIZ, NULL)) <= 0) {
 		fputs("Failed to read address response\n", stderr);
 		goto ret;
 	} else len = (__u32)br;

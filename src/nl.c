@@ -118,7 +118,7 @@ err:
  *
  * \a EINVAL - \a msg is NULL, and thus invalid.
  */
-ssize_t nl_send(int fd, __u32 port, struct nlmsghdr *msg)
+ssize_t nl_send_msg(int fd, __u32 port, struct nlmsghdr *msg)
 {
 	ssize_t i = -1;
 	struct iovec iov;
@@ -165,7 +165,7 @@ ret:
  *               message. If you want to abandon the message,
  *               simply \a close the socket.
  */
-ssize_t nl_recv(int fd, struct nlmsghdr *msg, size_t len, __u32 *port)
+ssize_t nl_recv_msg(int fd, struct nlmsghdr *msg, size_t len, __u32 *port)
 {
 	ssize_t i;
 	struct iovec iov;
@@ -269,7 +269,7 @@ ssize_t nl_transact(int fd, struct nlmsghdr *m, size_t len, __u32 *port)
 		goto err;
 
 	/* Tx / Rx */
-	if ((size_t)nl_send(fd, port ? *port : 0, m) != m->nlmsg_len || (ret = nl_recv(fd, m, len, port)) <= 0)
+	if ((size_t)nl_send_msg(fd, port ? *port : 0, m) != m->nlmsg_len || (ret = nl_recv_msg(fd, m, len, port)) <= 0)
 		goto err;
 
 err:

@@ -100,13 +100,13 @@ static int nl_80211_exec(struct nl_80211_ctx *ctx)
 	__u32 dest_pid = 0; /* Should be always ZERO in direction to the kernel */
 	ssize_t n;
 
-	n = nl_send(ctx->fd, dest_pid, ctx->msg_tx);
+	n = nl_send_msg(ctx->fd, dest_pid, ctx->msg_tx);
 	dd("ctx %p: msg with seq [%d] sent: [%zd] (bytes)", ctx, ctx->msg_tx->nlmsg_seq, n);
 	if (ctx->msg_tx->nlmsg_len != n) {
 		return -1;
 	}
 
-	while ((n = nl_recv(ctx->fd, ctx->msg_rx, sizeof(ctx->buf_rx), NULL)) > 0) {
+	while ((n = nl_recv_msg(ctx->fd, ctx->msg_rx, sizeof(ctx->buf_rx), NULL)) > 0) {
 		dd("ctx: %p: got message with seq [%d], len: [%zd] (bytes)", ctx, ctx->msg_rx->nlmsg_seq, n);
 		if (ctx->msg_rx->nlmsg_seq == ctx->msg_tx->nlmsg_seq) {
 			break;
