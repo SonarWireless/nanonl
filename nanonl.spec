@@ -1,7 +1,9 @@
 %define soname  1
+%define __cmake_in_source_build 1
+
 Name:           nanonl
 Version:        1.0
-Release:        1
+Release:        2
 Summary:        Small library for dealing with netlink
 License:        BSD-2-Clause
 Group:          Productivity/Networking/Other
